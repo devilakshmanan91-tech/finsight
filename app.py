@@ -1,13 +1,10 @@
 import os
 import streamlit as st
-from dotenv import load_dotenv
 from agents.orchestrator import run_finsight_ui
 from agents.chatbot_agent import ask_finsight
 from utils.database import (init_db, register_user, login_user,
                              save_report, get_user_reports,
                              get_all_reports, get_all_users, get_stats)
-
-load_dotenv()
 
 st.set_page_config(
     page_title="FinSight AI",
