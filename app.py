@@ -258,22 +258,36 @@ if st.session_state.page == "landing":
 # ══════════════════════════════════════════════════════════════
 # REGISTER PAGE
 # ══════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
+# REGISTER PAGE
+# ══════════════════════════════════════════════════════════════
 elif st.session_state.page == "register":
     st.markdown('<div class="auth-container">', unsafe_allow_html=True)
     st.markdown("""
     <div style="text-align:center;margin-bottom:2rem;">
         <div style="font-size:3rem;">💰</div>
-        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:#f1f5f9;">Create Account</div>
-        <div style="color:#475569;margin-top:0.5rem;">Join FinSight — it's free!</div>
+        <div style="font-family:'Playfair Display',serif;
+                    font-size:2rem;color:#f1f5f9;">Create Account</div>
+        <div style="color:#475569;margin-top:0.5rem;">
+            Join FinSight — it's free!
+        </div>
     </div>
     """, unsafe_allow_html=True)
+
     st.markdown('<div class="auth-card">', unsafe_allow_html=True)
-    nu  = st.text_input("👤 Username", placeholder="e.g. devi2024")
-    em  = st.text_input("📧 Email Address", placeholder="e.g. devi@gmail.com")
-    np  = st.text_input("🔒 Password", type="password", placeholder="Min 6 characters")
-    np2 = st.text_input("🔒 Confirm Password", type="password", placeholder="Repeat password")
+
+    nu  = st.text_input("👤 Username", placeholder="e.g. devi2024",
+                        key="reg_username")
+    em  = st.text_input("📧 Email Address",
+                        placeholder="e.g. devi@gmail.com", key="reg_email")
+    np  = st.text_input("🔒 Password", type="password",
+                        placeholder="Min 6 characters", key="reg_pass")
+    np2 = st.text_input("🔒 Confirm Password", type="password",
+                        placeholder="Repeat password", key="reg_pass2")
+
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Create My Account →"):
+
+    if st.button("🚀 Create My Account", use_container_width=True):
         if nu and em and np and np2:
             if np != np2:
                 st.error("❌ Passwords don't match!")
@@ -282,71 +296,96 @@ elif st.session_state.page == "register":
             elif "@" not in em:
                 st.error("❌ Please enter a valid email!")
             else:
-                ok, msg = register_user(nu, em, np)
+                with st.spinner("⏳ Creating your account..."):
+                    ok, msg = register_user(nu, em, np)
                 if ok:
-                    st.success("✅ Account created! Taking you to login...")
-                    import time; time.sleep(1)
-                    go("login")
+                    st.success("✅ Account created successfully!")
+                    st.info("👉 Click **Already registered? Login** below!")
                 else:
                     st.error("❌ " + msg)
         else:
             st.warning("⚠️ Please fill all fields!")
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div style="text-align:center;color:#334155;font-size:0.8rem;margin-top:1rem;">
-        🔒 Your password is encrypted · Your data is private
-    </div>""", unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("← Back to Home"):
-            go("landing")
-    with col2:
-        if st.button("Already registered? Login"):
-            go("login")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
+    st.markdown("""
+    <div style="text-align:center;color:#334155;
+                font-size:0.8rem;margin-top:1rem;">
+        🔒 Your password is encrypted · Your data is private
+    </div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("← Back to Home", use_container_width=True):
+            go("landing")
+    with col2:
+        if st.button("Already registered? Login", use_container_width=True):
+            go("login")
+
+    st.markdown('</div>', unsafe_allow_html=True)
 # ══════════════════════════════════════════════════════════════
 # LOGIN PAGE
 # ══════════════════════════════════════════════════════════════
 elif st.session_state.page == "login":
     st.markdown('<div class="auth-container">', unsafe_allow_html=True)
+
     st.markdown("""
     <div style="text-align:center;margin-bottom:2rem;">
         <div style="font-size:3rem;">👋</div>
-        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:#f1f5f9;">Welcome Back!</div>
-        <div style="color:#475569;margin-top:0.5rem;">Sign in to your FinSight account</div>
+        <div style="font-family:'Playfair Display',serif;
+                    font-size:2rem;color:#f1f5f9;">Welcome Back!</div>
+        <div style="color:#475569;margin-top:0.5rem;">
+            Sign in to your FinSight account
+        </div>
     </div>
     """, unsafe_allow_html=True)
+
     st.markdown('<div class="auth-card">', unsafe_allow_html=True)
-    u = st.text_input("👤 Username", placeholder="Enter your username")
-    p = st.text_input("🔒 Password", type="password", placeholder="Enter your password")
+
+    u = st.text_input("👤 Username",
+                      placeholder="Enter your username",
+                      key="login_user")
+    p = st.text_input("🔒 Password", type="password",
+                      placeholder="Enter your password",
+                      key="login_pass")
+
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Login → Enter FinSight"):
+
+    if st.button("🔑 Login → Enter FinSight", use_container_width=True):
         if u and p:
-            ok, is_admin = login_user(u, p)
+            with st.spinner("⏳ Logging in..."):
+                ok, is_admin = login_user(u, p)
             if ok:
                 st.session_state.logged_in = True
                 st.session_state.username  = u
                 st.session_state.is_admin  = is_admin
+                st.success("✅ Login successful! Loading...")
+                import time; time.sleep(0.5)
                 go("app")
             else:
                 st.error("❌ Invalid username or password!")
         else:
             st.warning("⚠️ Please fill all fields!")
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div style="text-align:center;color:#334155;font-size:0.8rem;margin-top:1rem;">
-        🔒 Your data is encrypted and secure
-    </div>""", unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("← Back to Home"):
-            go("landing")
-    with col2:
-        if st.button("New here? Register Free"):
-            go("register")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
+    st.markdown("""
+    <div style="text-align:center;color:#334155;
+                font-size:0.8rem;margin-top:1rem;">
+        🔒 Your data is encrypted and secure
+    </div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("← Back to Home", use_container_width=True):
+            go("landing")
+    with col2:
+        if st.button("New here? Register Free", use_container_width=True):
+            go("register")
+
+    st.markdown('</div>', unsafe_allow_html=True)
 # ══════════════════════════════════════════════════════════════
 # APP PAGE
 # ══════════════════════════════════════════════════════════════
