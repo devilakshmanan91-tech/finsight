@@ -118,6 +118,7 @@ def do_logout():
     st.rerun()
 
 def quick_ask(q):
+    def quick_ask(q):
     st.session_state.chat_history.append(("user", q))
     with st.spinner("🤖 Thinking..."):
         ans = ask_finsight(q, st.session_state.last_context)
