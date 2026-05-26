@@ -18,10 +18,7 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap');
 * { font-family: 'DM Sans', sans-serif; }
 .block-container { padding: 0 !important; max-width: 100% !important; }
-
-html, body, [data-testid="stAppViewContainer"] {
-    background: #0a0f1e !important;
-}
+html, body, [data-testid="stAppViewContainer"] { background: #0a0f1e !important; }
 [data-testid="stHeader"] { background: transparent !important; }
 
 .hero {
@@ -49,10 +46,7 @@ html, body, [data-testid="stAppViewContainer"] {
 .about-section { background:#0f172a; padding:4rem 2rem; text-align:center; border-top:1px solid #1e293b; }
 .about-section h2 { font-family:'Playfair Display',serif; color:#f1f5f9; font-size:2rem; margin-bottom:1rem; }
 .about-section p { color:#64748b; max-width:700px; margin:0 auto 2rem auto; line-height:1.8; }
-.cta-section {
-    background:#0a0f1e; padding:3rem 2rem; text-align:center;
-    border-top:1px solid #1e293b;
-}
+.cta-section { background:#0a0f1e; padding:3rem 2rem; text-align:center; border-top:1px solid #1e293b; }
 .cta-section h2 { font-family:'Playfair Display',serif; color:#f1f5f9; font-size:2rem; margin-bottom:0.5rem; }
 .cta-section p { color:#64748b; margin-bottom:2rem; }
 .auth-container { max-width:460px; margin:3rem auto; padding:0 1rem; }
@@ -70,10 +64,11 @@ html, body, [data-testid="stAppViewContainer"] {
 .stButton > button {
     background:linear-gradient(135deg,#0ea5e9,#6366f1) !important;
     color:white !important; border:none !important; border-radius:12px !important;
-    padding:0.9rem 2rem !important; font-size:1rem !important;
+    padding:1rem 2rem !important; font-size:1.1rem !important;
     font-weight:600 !important; width:100% !important;
     box-shadow:0 4px 20px rgba(14,165,233,0.3) !important;
     transition: all 0.3s ease !important;
+    letter-spacing:0.5px !important;
 }
 .stButton > button:hover {
     transform: translateY(-2px) !important;
@@ -100,7 +95,6 @@ html, body, [data-testid="stAppViewContainer"] {
     margin:0.5rem 0; max-width:85%; font-size:0.95rem; line-height:1.6;
 }
 .footer { background:#060b14; text-align:center; color:#334155; font-size:0.85rem; padding:2rem; border-top:1px solid #1e293b; }
-.footer a { color:#38bdf8; text-decoration:none; }
 #MainMenu {visibility:hidden;} footer {visibility:hidden;} header {visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
@@ -135,7 +129,6 @@ def quick_ask(q):
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "landing":
 
-    # Hero
     st.markdown("""
     <div class="hero">
         <div class="badge">⚡ POWERED BY AGENTIC AI</div>
@@ -145,7 +138,6 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    # Features
     st.markdown("""
     <div class="features">
         <h2>Everything you need to manage your finances</h2>
@@ -185,7 +177,6 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    # About
     st.markdown("""
     <div class="about-section">
         <h2>About FinSight</h2>
@@ -197,7 +188,7 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    # CTA Buttons — highlighted professionally
+    # ── BIG CTA BUTTONS ──────────────────────────────────────
     st.markdown("""
     <div class="cta-section">
         <h2>Ready to take control of your finances?</h2>
@@ -205,17 +196,19 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([1.5, 1, 1.5])
-    with col2:
-        if st.button("🚀 Get Started Free", key="cta_register"):
+    # Full width big buttons
+    btn_col1, btn_col2 = st.columns(2)
+    with btn_col1:
+        if st.button("🚀 Get Started Free — Register Now",
+                     key="cta_register", use_container_width=True):
             go("register")
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🔑 Login to FinSight", key="cta_login"):
+    with btn_col2:
+        if st.button("🔑 Already have account? Login",
+                     key="cta_login", use_container_width=True):
             go("login")
 
-    # Contact
     st.markdown("""
-    <div style="background:#060b14;padding:3rem 2rem;border-top:1px solid #1e293b;">
+    <div style="background:#060b14;padding:3rem 2rem;border-top:1px solid #1e293b;margin-top:1rem;">
         <h2 style="font-family:'Playfair Display',serif;color:#f1f5f9;
                    text-align:center;font-size:2rem;margin-bottom:2rem;">Contact Us</h2>
         <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;">
@@ -241,7 +234,6 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    # Footer
     st.markdown("""
     <div class="footer">
         Built with ❤️ by <b>Devi</b> · FinSight — Agentic AI Personal Finance Advisor<br>
@@ -260,13 +252,14 @@ elif st.session_state.page == "register":
         <div style="font-family:'Playfair Display',serif;font-size:2rem;color:#f1f5f9;">
             Create Account</div>
         <div style="color:#475569;margin-top:0.5rem;">Join FinSight — it's free!</div>
-    </div>
-    """, unsafe_allow_html=True)
+    </div>""", unsafe_allow_html=True)
     st.markdown('<div class="auth-card">', unsafe_allow_html=True)
     nu  = st.text_input("👤 Username", placeholder="e.g. devi2024", key="reg_username")
     em  = st.text_input("📧 Email Address", placeholder="e.g. devi@gmail.com", key="reg_email")
-    np  = st.text_input("🔒 Password", type="password", placeholder="Min 6 characters", key="reg_pass")
-    np2 = st.text_input("🔒 Confirm Password", type="password", placeholder="Repeat password", key="reg_pass2")
+    np  = st.text_input("🔒 Password", type="password",
+                        placeholder="Min 6 characters", key="reg_pass")
+    np2 = st.text_input("🔒 Confirm Password", type="password",
+                        placeholder="Repeat password", key="reg_pass2")
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🚀 Create My Account", use_container_width=True, key="reg_btn"):
         if nu and em and np and np2:
@@ -311,12 +304,13 @@ elif st.session_state.page == "login":
         <div style="font-size:3rem;">👋</div>
         <div style="font-family:'Playfair Display',serif;font-size:2rem;color:#f1f5f9;">
             Welcome Back!</div>
-        <div style="color:#475569;margin-top:0.5rem;">Sign in to your FinSight account</div>
-    </div>
-    """, unsafe_allow_html=True)
+        <div style="color:#475569;margin-top:0.5rem;">
+            Sign in to your FinSight account</div>
+    </div>""", unsafe_allow_html=True)
     st.markdown('<div class="auth-card">', unsafe_allow_html=True)
     u = st.text_input("👤 Username", placeholder="Enter your username", key="login_user")
-    p = st.text_input("🔒 Password", type="password", placeholder="Enter your password", key="login_pass")
+    p = st.text_input("🔒 Password", type="password",
+                      placeholder="Enter your password", key="login_pass")
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🔑 Login → Enter FinSight", use_container_width=True, key="login_btn"):
         if u and p:
@@ -357,7 +351,6 @@ elif st.session_state.page == "app":
 
     st.markdown('<div class="app-container">', unsafe_allow_html=True)
 
-    # ── ADMIN ──────────────────────────────────────────────────
     if st.session_state.is_admin:
         col1, col2 = st.columns([6, 1])
         with col1:
@@ -370,30 +363,37 @@ elif st.session_state.page == "app":
         total_users, total_reports = get_stats()
         st.markdown(f"""
         <div class="metric-row">
-            <div class="metric-card"><div class="metric-value">{total_users}</div><div class="metric-label">Total Users</div></div>
-            <div class="metric-card"><div class="metric-value">{total_reports}</div><div class="metric-label">Total Reports</div></div>
-            <div class="metric-card"><div class="metric-value">🟢</div><div class="metric-label">System Live</div></div>
-            <div class="metric-card"><div class="metric-value">🤖</div><div class="metric-label">AI Active</div></div>
+            <div class="metric-card"><div class="metric-value">{total_users}</div>
+                <div class="metric-label">Total Users</div></div>
+            <div class="metric-card"><div class="metric-value">{total_reports}</div>
+                <div class="metric-label">Total Reports</div></div>
+            <div class="metric-card"><div class="metric-value">🟢</div>
+                <div class="metric-label">System Live</div></div>
+            <div class="metric-card"><div class="metric-value">🤖</div>
+                <div class="metric-label">AI Active</div></div>
         </div>""", unsafe_allow_html=True)
         st.markdown("---")
         atab1, atab2 = st.tabs(["👥 All Users", "📋 All Reports"])
         with atab1:
             users = get_all_users()
             if users:
-                df_u = pd.DataFrame(users, columns=["Username","Email","Is Admin","Joined"])
-                df_u["Is Admin"] = df_u["Is Admin"].apply(lambda x: "👑 Admin" if x else "👤 User")
+                df_u = pd.DataFrame(users,
+                    columns=["Username","Email","Is Admin","Joined"])
+                df_u["Is Admin"] = df_u["Is Admin"].apply(
+                    lambda x: "👑 Admin" if x else "👤 User")
                 st.dataframe(df_u, use_container_width=True, hide_index=True)
             else:
                 st.info("No users yet!")
         with atab2:
             reports = get_all_reports()
             if reports:
-                df_r = pd.DataFrame(reports, columns=["Username","Income (₹)","Expenses (₹)","Surplus (₹)","Savings Rate (%)","Risk Score","Date"])
+                df_r = pd.DataFrame(reports, columns=[
+                    "Username","Income (₹)","Expenses (₹)",
+                    "Surplus (₹)","Savings Rate (%)","Risk Score","Date"])
                 st.dataframe(df_r, use_container_width=True, hide_index=True)
             else:
                 st.info("No reports yet!")
 
-    # ── USER ───────────────────────────────────────────────────
     else:
         col1, col2 = st.columns([6, 1])
         with col1:
@@ -412,7 +412,6 @@ elif st.session_state.page == "app":
         tab_plan, tab_chat, tab_history = st.tabs([
             "🚀 Financial Plan", "🤖 AI Chatbot", "📋 My Reports"])
 
-        # TAB 1
         with tab_plan:
             st.markdown('<div class="card"><div class="card-title">💵 Financial Overview</div>',
                         unsafe_allow_html=True)
@@ -452,7 +451,8 @@ elif st.session_state.page == "app":
             st.markdown('</div>', unsafe_allow_html=True)
             st.markdown("<br>", unsafe_allow_html=True)
 
-            if st.button("🚀 Generate My Financial Plan", key="gen_btn"):
+            if st.button("🚀 Generate My Financial Plan",
+                         key="gen_btn", use_container_width=True):
                 with st.spinner("🤖 AI agents analysing your finances..."):
                     result = run_finsight_ui(
                         income=income, expenses=expenses,
@@ -474,9 +474,9 @@ elif st.session_state.page == "app":
                 }
 
                 st.markdown("""
-                <div style="background:linear-gradient(135deg,#064e3b,#065f46);border-radius:12px;
-                            padding:1rem 1.5rem;color:#6ee7b7;font-weight:600;margin:1rem 0;
-                            border:1px solid #10b981;">
+                <div style="background:linear-gradient(135deg,#064e3b,#065f46);
+                            border-radius:12px;padding:1rem 1.5rem;color:#6ee7b7;
+                            font-weight:600;margin:1rem 0;border:1px solid #10b981;">
                     ✅ Plan ready! Go to 🤖 AI Chatbot tab to ask questions!
                 </div>""", unsafe_allow_html=True)
 
@@ -506,28 +506,26 @@ elif st.session_state.page == "app":
                     unsafe_allow_html=True)
                 st.markdown(f'<div class="result-box">{result["market"]}</div>',
                             unsafe_allow_html=True)
-
                 st.markdown("""<div class="section-header">
                     <div class="section-icon" style="background:#064e3b;">💰</div>
                     <p class="section-title">Budget Analysis</p></div>""",
                     unsafe_allow_html=True)
                 st.markdown(f'<div class="result-box green">{result["budget"]}</div>',
                             unsafe_allow_html=True)
-
                 st.markdown("""<div class="section-header">
                     <div class="section-icon" style="background:#1e1b4b;">📊</div>
                     <p class="section-title">Investment Plan</p></div>""",
                     unsafe_allow_html=True)
                 st.markdown(f'<div class="result-box">{result["investments"]}</div>',
                             unsafe_allow_html=True)
-
                 st.markdown(f"""
                 <div class="section-header">
                     <div class="section-icon" style="background:#431407;">⚠️</div>
                     <p class="section-title">Risk Report</p>
                 </div>
                 <div class="risk-bar-wrap">
-                    <div class="risk-bar-fill" style="width:{risk_pct}%;background:{risk_color};">
+                    <div class="risk-bar-fill"
+                         style="width:{risk_pct}%;background:{risk_color};">
                     </div>
                 </div>
                 <div class="result-box {risk_class}">{result["risk_details"]}</div>
@@ -541,13 +539,13 @@ elif st.session_state.page == "app":
                 )
                 st.toast("💾 Saved to My Reports!")
 
-        # TAB 2
         with tab_chat:
             st.markdown("### 🤖 FinSight AI Chatbot")
             if not st.session_state.last_context:
                 st.markdown("""
-                <div style="text-align:center;background:#0f172a;border:2px dashed #1e293b;
-                            border-radius:16px;padding:3rem;color:#475569;">
+                <div style="text-align:center;background:#0f172a;
+                            border:2px dashed #1e293b;border-radius:16px;
+                            padding:3rem;color:#475569;">
                     <div style="font-size:3rem;">🤖</div>
                     <div style="font-size:1.1rem;color:#64748b;margin-top:1rem;">
                         Go to 🚀 Financial Plan tab first!</div>
@@ -555,10 +553,13 @@ elif st.session_state.page == "app":
             else:
                 ctx = st.session_state.last_context
                 st.markdown(f"""
-                <div style="background:#0f172a;border:1px solid #10b981;border-radius:12px;
-                            padding:1rem;margin-bottom:1rem;color:#6ee7b7;font-size:0.85rem;">
-                    🧠 AI knows — Income: ₹{ctx['income']:,} · Surplus: ₹{ctx['surplus']:,} ·
-                    Risk: {ctx['risk_score']} · Savings: {ctx['savings_rate']}%
+                <div style="background:#0f172a;border:1px solid #10b981;
+                            border-radius:12px;padding:1rem;margin-bottom:1rem;
+                            color:#6ee7b7;font-size:0.85rem;">
+                    🧠 AI knows — Income: ₹{ctx['income']:,} ·
+                    Surplus: ₹{ctx['surplus']:,} ·
+                    Risk: {ctx['risk_score']} ·
+                    Savings: {ctx['savings_rate']}%
                 </div>""", unsafe_allow_html=True)
 
                 st.markdown("**⚡ Quick questions:**")
@@ -608,13 +609,14 @@ elif st.session_state.page == "app":
                         st.session_state.chat_history = []
                         st.rerun()
 
-        # TAB 3
         with tab_history:
             st.markdown("### 📋 My Financial Reports")
             st.markdown("""
-            <div style="background:#0f172a;border:1px solid #1e293b;border-radius:10px;
-                        padding:0.8rem 1.2rem;color:#64748b;font-size:0.85rem;margin-bottom:1rem;">
-                📌 Only <b style="color:#38bdf8;">you</b> can see your reports — 100% private!
+            <div style="background:#0f172a;border:1px solid #1e293b;
+                        border-radius:10px;padding:0.8rem 1.2rem;
+                        color:#64748b;font-size:0.85rem;margin-bottom:1rem;">
+                📌 Only <b style="color:#38bdf8;">you</b>
+                can see your reports — 100% private!
             </div>""", unsafe_allow_html=True)
             import pandas as pd
             reports = get_user_reports(st.session_state.username)
