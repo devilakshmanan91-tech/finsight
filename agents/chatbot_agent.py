@@ -32,14 +32,22 @@ Rules:
 - If user gives different numbers — politely say their plan is based on above data
 """
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": question}
-        ],
-        max_tokens=500,
-        temperature=0.7
-    )
+    try:
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-20b",  # free on Groq, currently supported (llama-3.3-70b-versatile was deprecated)
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user",   "content": question}
+            ],
+            max_tokens=500,
+            temperature=0.7
+        )
+        return response.choices[0].message.content
 
-    return response.choices[0].message.content
+    except Exception as e:
+        # Fail gracefully instead of crashing the whole Streamlit app
+        return (
+            "⚠️ Sorry, I couldn't reach the AI service right now. "
+            "Please try again in a moment.\n\n"
+            f"(details: {e})"
+        )
