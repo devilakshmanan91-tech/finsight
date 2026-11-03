@@ -1,3 +1,5 @@
+import time
+import pandas as pd
 import streamlit as st
 from agents.orchestrator import run_finsight_ui
 from agents.chatbot_agent import ask_finsight
@@ -49,11 +51,7 @@ html, body, [data-testid="stAppViewContainer"] { background: #0a0f1e !important;
 .cta-section { background:#0a0f1e; padding:3rem 2rem; text-align:center; border-top:1px solid #1e293b; }
 .cta-section h2 { font-family:'Playfair Display',serif; color:#f1f5f9; font-size:2rem; margin-bottom:0.5rem; }
 .cta-section p { color:#64748b; margin-bottom:2rem; }
-.auth-container { max-width:460px; margin:3rem auto; padding:0 1rem; }
-.auth-card { background:#111827; border:1px solid #1e293b; border-radius:20px; padding:2.5rem; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
-.app-container { max-width:1100px; margin:0 auto; padding:2rem; }
-.card { background:#111827; border:1px solid #1e293b; border-radius:16px; padding:1.5rem; margin-bottom:1rem; }
-.card-title { font-size:0.75rem; font-weight:600; letter-spacing:2px; color:#64748b; text-transform:uppercase; margin-bottom:1rem; }
+.card-title { font-size:0.75rem; font-weight:600; letter-spacing:2px; color:#64748b; text-transform:uppercase; margin-bottom:0.5rem; }
 .metric-row { display:flex; gap:1rem; margin:1rem 0; }
 .metric-card { flex:1; background:#0f172a; border:1px solid #1e293b; border-radius:12px; padding:1.2rem; text-align:center; }
 .metric-value { font-family:'Playfair Display',serif; font-size:1.8rem; color:#f1f5f9; font-weight:700; }
@@ -61,19 +59,30 @@ html, body, [data-testid="stAppViewContainer"] { background: #0a0f1e !important;
 .section-header { display:flex; align-items:center; gap:0.75rem; margin:2rem 0 1rem 0; }
 .section-icon { width:36px; height:36px; border-radius:8px; font-size:1rem; }
 .section-title { font-family:'Playfair Display',serif; font-size:1.3rem; color:#f1f5f9; margin:0; }
-.stButton > button {
+
+/* Buttons (normal + form submit buttons) */
+.stButton > button,
+[data-testid="stFormSubmitButton"] > button {
     background:linear-gradient(135deg,#0ea5e9,#6366f1) !important;
     color:white !important; border:none !important; border-radius:12px !important;
-    padding:1rem 2rem !important; font-size:1.1rem !important;
+    padding:0.6rem 1.2rem !important; font-size:0.95rem !important;
     font-weight:600 !important; width:100% !important;
-    box-shadow:0 4px 20px rgba(14,165,233,0.3) !important;
+    box-shadow:0 4px 20px rgba(14,165,233,0.25) !important;
     transition: all 0.3s ease !important;
-    letter-spacing:0.5px !important;
+    letter-spacing:0.3px !important;
 }
-.stButton > button:hover {
+.stButton > button:hover,
+[data-testid="stFormSubmitButton"] > button:hover {
     transform: translateY(-2px) !important;
-    box-shadow:0 8px 30px rgba(14,165,233,0.5) !important;
+    box-shadow:0 8px 30px rgba(14,165,233,0.45) !important;
 }
+
+/* Forms (login, register, chat) */
+[data-testid="stForm"] {
+    background:#111827; border:1px solid #1e293b;
+    border-radius:16px; padding:1.5rem;
+}
+
 .result-box {
     background:#0f172a; border-left:3px solid #0ea5e9;
     border-radius:0 12px 12px 0; padding:1.2rem 1.5rem;
@@ -85,15 +94,6 @@ html, body, [data-testid="stAppViewContainer"] { background: #0a0f1e !important;
 .result-box.red   { border-left-color:#ef4444; }
 .risk-bar-wrap { background:#1e293b; border-radius:50px; height:10px; margin:1rem 0; overflow:hidden; }
 .risk-bar-fill { height:100%; border-radius:50px; }
-.chat-bubble-user {
-    background:#1e40af; color:#fff; border-radius:18px 18px 4px 18px;
-    padding:0.8rem 1.2rem; margin:0.5rem 0; max-width:80%; margin-left:auto; font-size:0.95rem;
-}
-.chat-bubble-ai {
-    background:#111827; color:#cbd5e1; border:1px solid #1e293b;
-    border-radius:18px 18px 18px 4px; padding:0.8rem 1.2rem;
-    margin:0.5rem 0; max-width:85%; font-size:0.95rem; line-height:1.6;
-}
 .footer { background:#060b14; text-align:center; color:#334155; font-size:0.85rem; padding:2rem; border-top:1px solid #1e293b; }
 #MainMenu {visibility:hidden;} footer {visibility:hidden;} header {visibility:hidden;}
 </style>
@@ -161,7 +161,7 @@ if st.session_state.page == "landing":
             <div class="feature-card">
                 <div class="feature-icon">🤖</div>
                 <div class="feature-title">AI Chatbot</div>
-                <div class="feature-desc">Ask anything — powered by Groq LLaMA 3.3, knows YOUR financial data</div>
+                <div class="feature-desc">Ask anything — powered by Groq AI, knows YOUR financial data</div>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">📊</div>
@@ -184,11 +184,10 @@ if st.session_state.page == "landing":
         for Indian users. It uses multiple specialised AI agents — a Data Agent
         for live NSE market data, an Analysis Agent for budget planning,
         a Risk Agent for financial health scoring, and an AI Chatbot powered
-        by Groq LLaMA 3.3 for personalised conversations.</p>
+        by Groq for personalised conversations.</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── BIG CTA BUTTONS ──────────────────────────────────────
     st.markdown("""
     <div class="cta-section">
         <h2>Ready to take control of your finances?</h2>
@@ -196,7 +195,6 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    # Full width big buttons
     btn_col1, btn_col2 = st.columns(2)
     with btn_col1:
         if st.button("🚀 Get Started Free — Register Now",
@@ -237,7 +235,7 @@ if st.session_state.page == "landing":
     st.markdown("""
     <div class="footer">
         Built with ❤️ by <b>Devi</b> · FinSight — Agentic AI Personal Finance Advisor<br>
-        Powered by Python · Groq LLaMA 3.3 · Streamlit · SQLite · yfinance
+        Powered by Python · Groq AI · Streamlit · SQLite · yfinance
     </div>
     """, unsafe_allow_html=True)
 
@@ -245,23 +243,30 @@ if st.session_state.page == "landing":
 # REGISTER PAGE
 # ══════════════════════════════════════════════════════════════
 elif st.session_state.page == "register":
-    st.markdown('<div class="auth-container">', unsafe_allow_html=True)
+    # Center the page content (replaces the old empty auth-card box)
     st.markdown("""
-    <div style="text-align:center;margin-bottom:2rem;">
+    <style>.block-container { max-width: 520px !important; padding: 2rem 1rem !important; margin: 0 auto !important; }</style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="text-align:center;margin-bottom:1.5rem;">
         <div style="font-size:3rem;">💰</div>
         <div style="font-family:'Playfair Display',serif;font-size:2rem;color:#f1f5f9;">
             Create Account</div>
         <div style="color:#475569;margin-top:0.5rem;">Join FinSight — it's free!</div>
     </div>""", unsafe_allow_html=True)
-    st.markdown('<div class="auth-card">', unsafe_allow_html=True)
-    nu  = st.text_input("👤 Username", placeholder="e.g. devi2024", key="reg_username")
-    em  = st.text_input("📧 Email Address", placeholder="e.g. devi@gmail.com", key="reg_email")
-    np  = st.text_input("🔒 Password", type="password",
-                        placeholder="Min 6 characters", key="reg_pass")
-    np2 = st.text_input("🔒 Confirm Password", type="password",
-                        placeholder="Repeat password", key="reg_pass2")
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🚀 Create My Account", use_container_width=True, key="reg_btn"):
+
+    # st.form: the fields really sit inside the card, and Enter submits
+    with st.form("register_form"):
+        nu  = st.text_input("👤 Username", placeholder="e.g. devi2024", key="reg_username")
+        em  = st.text_input("📧 Email Address", placeholder="e.g. devi@gmail.com", key="reg_email")
+        np  = st.text_input("🔒 Password", type="password",
+                            placeholder="Min 6 characters", key="reg_pass")
+        np2 = st.text_input("🔒 Confirm Password", type="password",
+                            placeholder="Repeat password", key="reg_pass2")
+        reg_submit = st.form_submit_button("🚀 Create My Account", use_container_width=True)
+
+    if reg_submit:
         if nu and em and np and np2:
             if np != np2:
                 st.error("❌ Passwords don't match!")
@@ -279,12 +284,12 @@ elif st.session_state.page == "register":
                     st.error("❌ " + msg)
         else:
             st.warning("⚠️ Please fill all fields!")
-    st.markdown('</div>', unsafe_allow_html=True)
+
     st.markdown("""
-    <div style="text-align:center;color:#334155;font-size:0.8rem;margin-top:1rem;">
+    <div style="text-align:center;color:#334155;font-size:0.8rem;margin:1rem 0;">
         🔒 Your password is encrypted · Your data is private
     </div>""", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
+
     col1, col2 = st.columns(2)
     with col1:
         if st.button("← Back to Home", use_container_width=True, key="reg_back"):
@@ -292,27 +297,31 @@ elif st.session_state.page == "register":
     with col2:
         if st.button("Already registered? Login", use_container_width=True, key="reg_to_login"):
             go("login")
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
 # LOGIN PAGE
 # ══════════════════════════════════════════════════════════════
 elif st.session_state.page == "login":
-    st.markdown('<div class="auth-container">', unsafe_allow_html=True)
     st.markdown("""
-    <div style="text-align:center;margin-bottom:2rem;">
+    <style>.block-container { max-width: 520px !important; padding: 2rem 1rem !important; margin: 0 auto !important; }</style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="text-align:center;margin-bottom:1.5rem;">
         <div style="font-size:3rem;">👋</div>
         <div style="font-family:'Playfair Display',serif;font-size:2rem;color:#f1f5f9;">
             Welcome Back!</div>
         <div style="color:#475569;margin-top:0.5rem;">
             Sign in to your FinSight account</div>
     </div>""", unsafe_allow_html=True)
-    st.markdown('<div class="auth-card">', unsafe_allow_html=True)
-    u = st.text_input("👤 Username", placeholder="Enter your username", key="login_user")
-    p = st.text_input("🔒 Password", type="password",
-                      placeholder="Enter your password", key="login_pass")
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🔑 Login → Enter FinSight", use_container_width=True, key="login_btn"):
+
+    with st.form("login_form"):
+        u = st.text_input("👤 Username", placeholder="Enter your username", key="login_user")
+        p = st.text_input("🔒 Password", type="password",
+                          placeholder="Enter your password", key="login_pass")
+        login_submit = st.form_submit_button("🔑 Login → Enter FinSight", use_container_width=True)
+
+    if login_submit:
         if u and p:
             with st.spinner("⏳ Logging in..."):
                 ok, is_admin = login_user(u, p)
@@ -321,18 +330,18 @@ elif st.session_state.page == "login":
                 st.session_state.username  = u
                 st.session_state.is_admin  = is_admin
                 st.success("✅ Login successful! Loading...")
-                import time; time.sleep(0.5)
+                time.sleep(0.5)
                 go("app")
             else:
                 st.error("❌ Invalid username or password!")
         else:
             st.warning("⚠️ Please fill all fields!")
-    st.markdown('</div>', unsafe_allow_html=True)
+
     st.markdown("""
-    <div style="text-align:center;color:#334155;font-size:0.8rem;margin-top:1rem;">
+    <div style="text-align:center;color:#334155;font-size:0.8rem;margin:1rem 0;">
         🔒 Your data is encrypted and secure
     </div>""", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
+
     col1, col2 = st.columns(2)
     with col1:
         if st.button("← Back to Home", use_container_width=True, key="login_back"):
@@ -340,7 +349,6 @@ elif st.session_state.page == "login":
     with col2:
         if st.button("New here? Register Free", use_container_width=True, key="login_to_reg"):
             go("register")
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
 # APP PAGE
@@ -349,7 +357,10 @@ elif st.session_state.page == "app":
     if not st.session_state.logged_in:
         go("login")
 
-    st.markdown('<div class="app-container">', unsafe_allow_html=True)
+    # Centered, padded layout for the app (replaces the old empty app-container div)
+    st.markdown("""
+    <style>.block-container { max-width: 1100px !important; padding: 2rem 1rem !important; margin: 0 auto !important; }</style>
+    """, unsafe_allow_html=True)
 
     if st.session_state.is_admin:
         col1, col2 = st.columns([6, 1])
@@ -359,7 +370,6 @@ elif st.session_state.page == "app":
             if st.button("Logout", key="admin_logout"):
                 do_logout()
 
-        import pandas as pd
         total_users, total_reports = get_stats()
         st.markdown(f"""
         <div class="metric-row">
@@ -412,55 +422,66 @@ elif st.session_state.page == "app":
         tab_plan, tab_chat, tab_history = st.tabs([
             "🚀 Financial Plan", "🤖 AI Chatbot", "📋 My Reports"])
 
+        # ── TAB 1: FINANCIAL PLAN ────────────────────────────
         with tab_plan:
-            st.markdown('<div class="card"><div class="card-title">💵 Financial Overview</div>',
-                        unsafe_allow_html=True)
-            c1, c2 = st.columns(2)
-            with c1:
-                income       = st.number_input("Monthly Income (₹)", min_value=0, value=40000, step=1000)
-                expenses     = st.number_input("Monthly Expenses (₹)", min_value=0, value=28000, step=1000)
-            with c2:
-                savings_goal = st.number_input("Monthly Savings Goal (₹)", min_value=0, value=5000, step=500)
-                sip_amount   = st.number_input("SIP Amount / month (₹)", min_value=0, value=3000, step=500)
-            st.markdown('</div>', unsafe_allow_html=True)
+            # st.container(border=True) really holds the widgets (no more empty boxes)
+            with st.container(border=True):
+                st.markdown('<div class="card-title">💵 Financial Overview</div>',
+                            unsafe_allow_html=True)
+                c1, c2 = st.columns(2)
+                with c1:
+                    income   = st.number_input("Monthly Income (₹)", min_value=0, value=0, step=1000)
+                    expenses = st.number_input("Monthly Expenses (₹)", min_value=0, value=0, step=1000)
+                with c2:
+                    savings_goal = st.number_input("Monthly Savings Goal (₹)", min_value=0, value=0, step=500)
+                    sip_amount   = st.number_input("SIP Amount / month (₹)", min_value=0, value=0, step=500)
 
-            st.markdown('<div class="card"><div class="card-title">📊 Investment Preferences</div>',
-                        unsafe_allow_html=True)
-            c3, c4 = st.columns(2)
-            with c3:
-                stock = st.text_input("NSE Stock Symbol", value="RELIANCE",
-                                      placeholder="e.g. TCS, INFY, HDFCBANK")
-            with c4:
-                years = st.slider("Investment Horizon (years)", 1, 30, 10)
-            st.markdown("**Your Risk Appetite**")
-            rc1, rc2, rc3 = st.columns(3)
-            with rc1:
-                st.markdown("""<div style="background:#064e3b;border-radius:8px;padding:0.5rem;
-                    text-align:center;font-size:0.8rem;color:#6ee7b7;">
-                    🟢 <b>Low</b><br>Safe · FD · PPF</div>""", unsafe_allow_html=True)
-            with rc2:
-                st.markdown("""<div style="background:#451a03;border-radius:8px;padding:0.5rem;
-                    text-align:center;font-size:0.8rem;color:#fbbf24;">
-                    🟡 <b>Medium</b><br>Balanced · Index funds</div>""", unsafe_allow_html=True)
-            with rc3:
-                st.markdown("""<div style="background:#450a0a;border-radius:8px;padding:0.5rem;
-                    text-align:center;font-size:0.8rem;color:#fca5a5;">
-                    🔴 <b>High</b><br>Aggressive · Stocks</div>""", unsafe_allow_html=True)
-            risk_level = st.radio("Select Risk Level", ["low", "medium", "high"],
-                                  horizontal=True, label_visibility="collapsed")
-            st.markdown('</div>', unsafe_allow_html=True)
+            with st.container(border=True):
+                st.markdown('<div class="card-title">📊 Investment Preferences</div>',
+                            unsafe_allow_html=True)
+                c3, c4 = st.columns(2)
+                with c3:
+                    stock = st.text_input("NSE Stock Symbol", value="",
+                                          placeholder="e.g. TCS, INFY, HDFCBANK")
+                with c4:
+                    years = st.slider("Investment Horizon (years)", 1, 30, 10)
+                st.markdown("**Your Risk Appetite**")
+                rc1, rc2, rc3 = st.columns(3)
+                with rc1:
+                    st.markdown("""<div style="background:#064e3b;border-radius:8px;padding:0.5rem;
+                        text-align:center;font-size:0.8rem;color:#6ee7b7;">
+                        🟢 <b>Low</b><br>Safe · FD · PPF</div>""", unsafe_allow_html=True)
+                with rc2:
+                    st.markdown("""<div style="background:#451a03;border-radius:8px;padding:0.5rem;
+                        text-align:center;font-size:0.8rem;color:#fbbf24;">
+                        🟡 <b>Medium</b><br>Balanced · Index funds</div>""", unsafe_allow_html=True)
+                with rc3:
+                    st.markdown("""<div style="background:#450a0a;border-radius:8px;padding:0.5rem;
+                        text-align:center;font-size:0.8rem;color:#fca5a5;">
+                        🔴 <b>High</b><br>Aggressive · Stocks</div>""", unsafe_allow_html=True)
+                risk_level = st.radio("Select Risk Level", ["low", "medium", "high"],
+                                      index=1, horizontal=True,
+                                      label_visibility="collapsed")
+
             st.markdown("<br>", unsafe_allow_html=True)
 
-            if st.button("🚀 Generate My Financial Plan",
-                         key="gen_btn", use_container_width=True):
+            generate = st.button("🚀 Generate My Financial Plan",
+                                 key="gen_btn", use_container_width=True)
+
+            # Validation first, so empty/zero inputs never produce a meaningless plan
+            if generate and income <= 0:
+                st.warning("⚠️ Please enter your monthly income to generate a plan.")
+            elif generate and not stock.strip():
+                st.warning("⚠️ Please enter an NSE stock symbol (e.g. TCS, INFY).")
+            elif generate:
                 with st.spinner("🤖 AI agents analysing your finances..."):
                     result = run_finsight_ui(
                         income=income, expenses=expenses,
                         savings_goal=savings_goal, risk_level=risk_level,
-                        stock=stock, sip_amount=sip_amount, years=years
+                        stock=stock.strip().upper(), sip_amount=sip_amount, years=years
                     )
                 surplus      = income - expenses
-                savings_rate = round((surplus/income)*100,1) if income > 0 else 0
+                savings_rate = round((surplus/income)*100, 1) if income > 0 else 0
                 goal_met     = surplus >= savings_goal
                 risk_score   = int(result["risk_score"].split("/")[0])
                 risk_pct     = int((risk_score/8)*100)
@@ -539,6 +560,7 @@ elif st.session_state.page == "app":
                 )
                 st.toast("💾 Saved to My Reports!")
 
+        # ── TAB 2: AI CHATBOT ────────────────────────────────
         with tab_chat:
             st.markdown("### 🤖 FinSight AI Chatbot")
             if not st.session_state.last_context:
@@ -585,30 +607,38 @@ elif st.session_state.page == "app":
                         quick_ask("How much emergency fund should I keep?")
 
                 st.markdown("---")
+
+                # st.chat_message renders markdown properly (no raw ** symbols)
                 for role, msg in st.session_state.chat_history:
                     if role == "user":
-                        st.markdown(
-                            f'<div class="chat-bubble-user">👤 {msg}</div>',
-                            unsafe_allow_html=True)
+                        with st.chat_message("user"):
+                            st.markdown(msg)
                     else:
-                        st.markdown(
-                            f'<div class="chat-bubble-ai">🤖 {msg}</div>',
-                            unsafe_allow_html=True)
+                        with st.chat_message("assistant"):
+                            st.markdown(msg)
 
-                st.markdown("<br>", unsafe_allow_html=True)
-                question = st.text_input("",
-                    placeholder="Ask anything about your finances...",
-                    key="chat_input", label_visibility="collapsed")
-                cs1, cs2 = st.columns([3, 1])
-                with cs1:
-                    if st.button("Send 💬", key="send_btn"):
-                        if question.strip():
-                            quick_ask(question)
-                with cs2:
-                    if st.button("🗑️ Clear", key="clear_btn"):
-                        st.session_state.chat_history = []
-                        st.rerun()
+                # Chat input: press Enter OR click send; the box clears automatically
+                with st.form("chat_form", clear_on_submit=True):
+                    fc1, fc2 = st.columns([6, 1])
+                    with fc1:
+                        question = st.text_input(
+                            "Message",
+                            placeholder="Ask anything about your finances... (press Enter to send)",
+                            label_visibility="collapsed")
+                    with fc2:
+                        sent = st.form_submit_button("Send ➤")
 
+                if sent and question.strip():
+                    quick_ask(question.strip())
+
+                if st.session_state.chat_history:
+                    cl1, _ = st.columns([1, 4])
+                    with cl1:
+                        if st.button("🗑️ Clear chat", key="clear_btn"):
+                            st.session_state.chat_history = []
+                            st.rerun()
+
+        # ── TAB 3: MY REPORTS ────────────────────────────────
         with tab_history:
             st.markdown("### 📋 My Financial Reports")
             st.markdown("""
@@ -618,7 +648,6 @@ elif st.session_state.page == "app":
                 📌 Only <b style="color:#38bdf8;">you</b>
                 can see your reports — 100% private!
             </div>""", unsafe_allow_html=True)
-            import pandas as pd
             reports = get_user_reports(st.session_state.username)
             if reports:
                 df = pd.DataFrame(reports, columns=[
@@ -633,9 +662,8 @@ elif st.session_state.page == "app":
                     No reports yet! Generate your first plan above!
                 </div>""", unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown("""
     <div class="footer">
         Built with ❤️ by <b>Devi</b> · FinSight — Agentic AI Personal Finance Advisor<br>
-        Powered by Python · Groq LLaMA 3.3 · Streamlit · SQLite · yfinance
+        Powered by Python · Groq AI · Streamlit · SQLite · yfinance
     </div>""", unsafe_allow_html=True)
